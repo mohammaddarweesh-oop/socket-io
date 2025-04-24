@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>WebSocket.io</title>
+<style>
+   /* ملف CSS مُحدّث */
+
+/* تنسيق عام للصفحة */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+  /* نخلي المحتوى عمودي بدل أفقي لأن عندنا صندوق الرسائل وفورم فوق بعض */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  gap: 20px; /* مسافة بين الرسائل والفورم */
+}
+
+/* صندوق عرض الرسائل */
+#messages-container {
+  width: 90%;
+  max-width: 600px;
+  flex: 1; /* ياخد المساحة الباقية */
+  overflow-y: auto;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* تصميم الفقرات داخل الصندوق كـ chat bubbles */
+#messages-container p {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #e8f0fe;
+  align-self: flex-start;
+  max-width: 75%;
+  word-break: break-word;
+  font-size: 15px;
+  line-height: 1.4;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+  
+}
+
+/* لتمييز رسائلك عنهم */
+#messages-container p.self {
+  background: #d1ffd6;
+  align-self: flex-end;
+}
+
+/* صندوق الإدخال والزر */
+#message-form {
+  width: 90%;
+  max-width: 520px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 20px 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  gap: 12px;
+  transition: transform 0.3s ease;
+}
+#message-form:hover {
+  transform: translateY(-4px);
+}
+
+/* حقل الإدخال */
+#message-input {
+  flex: 1;
+  padding: 14px 18px;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+#message-input:focus {
+  border-color: #8e44ad;
+  box-shadow: 0 0 6px rgba(142, 68, 173, 0.4);
+}
+
+/* زر الإرسال */
+#message-form button {
+  padding: 14px 24px;
+  border: none;
+  border-radius: 10px;
+  background: #8e44ad;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, transform 0.2s;
+}
+#message-form button:hover {
+  background: #6f337a;
+  transform: scale(1.05);
+}
+
+/* أنيميشن الظهور */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+</style>
+<script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+   <div id="messages-container">
+
+   </div>
+  <form id="message-form">
+    <input type="text" name="message" id="message-input" placeholder="أكتب رسالتك هون...">
+    <button type="submit">إرسال</button>
+  </form>
+
+ 
+
+  <script>
+   const socket = window.io();
+   const msgForm = document.getElementById("message-form");
+   const msgInput = document.getElementById('message-input');
+   const msgContainer = document.getElementById('messages-container');
+
+
+   msgForm.onsubmit = (e) =>{
+      e.preventDefault();
+      const msg = msgInput.value;
+      if (!msgInput.value.trim()) return;
+      socket.emit('send-message',{ msg})
+      msgInput.value = '';
+   };
+
+
+
+   socket.on('send-message', ({msg}) => {
+      console.log(msg);
+      
+      msgContainer.innerHTML += `<p>${msg}</p>`;
+    });
+
+
+  </script>
+</body>
+</html>
